@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PersonelApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="personel.css">
+</head>
+<body>
+
+<!-- ── ARKA PLAN EFEKT ── -->
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="app" id="app">
+
+  <!-- ════════════════ GİRİŞ EKRANI ════════════════ -->
+  <div class="screen active" id="s-login" style="align-items:center;justify-content:center">
+    <div class="login-wrap">
+      <div class="login-brand">
+        <div class="logo-icon"><i class="ti ti-users" style="color:#fff;font-size:26px"></i></div>
+        <h1>PersonelApp</h1>
+        <p>İnsan kaynakları yönetim sistemi</p>
+      </div>
+      <div class="login-card">
+        <div class="fl">
+          <label>E-posta adresi</label>
+          <div class="input-wrap">
+            <i class="ti ti-mail"></i>
+            <input type="email" id="login-email" placeholder="E-posta adresinizi girin">
+          </div>
+        </div>
+        <div class="fl">
+          <label>Şifre</label>
+          <div class="input-wrap">
+            <i class="ti ti-lock"></i>
+            <input type="password" id="login-pass" placeholder="Şifrenizi girin">
+          </div>
+        </div>
+        <button class="btn-login" onclick="doLogin()">
+          <i class="ti ti-login"></i> Giriş Yap
+        </button>
+        <div class="err-msg" id="login-err">
+          <i class="ti ti-alert-circle"></i> E-posta veya şifre hatalı
+        </div>
+        <div class="login-hint">
+          Demo: <strong style="color:var(--text2)">admin@sirket.com</strong> / <strong style="color:var(--text2)">123456</strong>
+        </div>
+      </div>
+      <div class="login-divider"><span>veya</span></div>
+      <button class="btn-employee-request" onclick="showEmployeeRequestPanel()">
+        <i class="ti ti-calendar-plus"></i>
+        <div>
+          <div class="ber-title">İzin Talebi Oluştur</div>
+          <div class="ber-sub">E-posta ve telefon ile kimliğinizi doğrulayın</div>
+        </div>
+        <i class="ti ti-chevron-right ber-arrow"></i>
+      </button>
+      <button class="btn-employee-request btn-status-check" onclick="showStatusPanel()" style="margin-top:.625rem">
+        <i class="ti ti-search bsr-icon"></i>
+        <div>
+          <div class="ber-title">İzin Raporu Durumu</div>
+          <div class="ber-sub">Referans kodunuzla talebinizi sorgulayın</div>
+        </div>
+        <i class="ti ti-chevron-right ber-arrow"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════ DURUM SORGULAMA EKRANI ════════════════ -->
+  <div class="screen" id="s-status" style="align-items:center;justify-content:center">
+    <div class="login-wrap" style="width:460px">
+      <div class="ep-header">
+        <button class="ep-back" onclick="showLoginScreen()">
+          <i class="ti ti-arrow-left"></i> Geri Dön
+        </button>
+        <div class="ep-brand">
+          <div class="logo-icon" style="width:44px;height:44px;font-size:20px;margin:0 auto .75rem;background:linear-gradient(135deg,var(--green),#06b6d4)">
+            <i class="ti ti-search" style="color:#fff"></i>
+          </div>
+          <h2 style="background:linear-gradient(135deg,var(--green),#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Talep Sorgula</h2>
+          <p>Referans kodunuzu girerek talebinizin güncel durumunu öğrenin</p>
+        </div>
+      </div>
+      <div class="ep-card" style="padding:1.75rem">
+        <div id="status-form-area">
+          <div class="ep-step-title" style="margin-bottom:1.25rem">
+            <i class="ti ti-barcode" style="color:var(--green)"></i> Referans Kodu ile Sorgula
+          </div>
+          <div class="st-input-wrap">
+            <input type="text" id="st-ref-input" placeholder="Örn: EP-A3F9-2847" autocomplete="off"
+              oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')queryStatus()">
+            <button class="btn btn-accent st-btn" onclick="queryStatus()">
+              <i class="ti ti-search"></i> Sorgula
+            </button>
+          </div>
+          <div class="field-err" id="st-err" style="margin-top:8px"></div>
+          <div class="st-hint">
+            <i class="ti ti-info-circle"></i>
+            Referans kodunuz, izin talebinizi gönderdikten sonra onay ekranında gösterilmiştir.
+          </div>
+        </div>
+        <div id="status-result" style="display:none">
+          <div id="st-result-inner"></div>
+          <div style="display:flex;gap:8px;margin-top:1.25rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-ghost" onclick="resetStatusQuery()"><i class="ti ti-search"></i> Yeni Sorgulama</button>
+            <button class="btn btn-ghost" onclick="showLoginScreen()"><i class="ti ti-login"></i> Admin Girişi</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ PERSONEL İZİN TALEBİ PANELI ════════════════ -->
+  <div class="screen" id="s-employee" style="align-items:center;justify-content:center;overflow-y:auto;padding:2rem 0">
+    <div class="ep-wrap">
+      <div class="ep-header">
+        <button class="ep-back" onclick="showLoginScreen()">
+          <i class="ti ti-arrow-left"></i> Geri Dön
+        </button>
+        <div class="ep-brand">
+          <div class="logo-icon" style="width:44px;height:44px;font-size:20px;margin:0 auto .75rem">
+            <i class="ti ti-calendar-plus" style="color:#fff"></i>
+          </div>
+          <h2>İzin Talebi Oluştur</h2>
+          <p>Talebiniz yöneticinize iletilecektir</p>
+        </div>
+      </div>
+
+      <div class="ep-card">
+        <!-- ADIM GÖSTERGESİ -->
+        <div class="ep-steps">
+          <div class="ep-step active" id="step-dot-1">
+            <div class="ep-step-circle">1</div>
+            <div class="ep-step-label">Kişisel Bilgiler</div>
+          </div>
+          <div class="ep-step-line"></div>
+          <div class="ep-step" id="step-dot-2">
+            <div class="ep-step-circle">2</div>
+            <div class="ep-step-label">İzin Detayları</div>
+          </div>
+          <div class="ep-step-line"></div>
+          <div class="ep-step" id="step-dot-3">
+            <div class="ep-step-circle">3</div>
+            <div class="ep-step-label">Onay</div>
+          </div>
+        </div>
+
+        <!-- ADIM 1: KİŞİSEL BİLGİLER -->
+        <div class="ep-step-content active" id="ep-step-1">
+          <div class="ep-step-title"><i class="ti ti-shield-check"></i> Kimlik Doğrulama</div>
+          <div class="ep-auth-info">
+            <i class="ti ti-info-circle"></i>
+            Sisteme kayıtlı personel bilgilerinizle doğrulama yapın. E-posta ve telefon numaranız eşleşmelidir.
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>E-posta <span class="req">*</span></label>
+              <div class="input-wrap" style="position:relative">
+                <i class="ti ti-mail" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none"></i>
+                <input type="email" id="ep-email" placeholder="Kurumsal e-posta adresiniz" style="padding-left:38px">
+              </div>
+              <div class="field-err" id="err-ep-email"></div>
+            </div>
+            <div class="form-group">
+              <label>Telefon <span class="req">*</span></label>
+              <div class="input-wrap" style="position:relative">
+                <i class="ti ti-phone" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none"></i>
+                <input type="tel" id="ep-tel" placeholder="Kayıtlı telefon numaranız" style="padding-left:38px">
+              </div>
+              <div class="field-err" id="err-ep-tel"></div>
+            </div>
+          </div>
+          <!-- Doğrulama sonucu -->
+          <div id="ep-auth-result" style="display:none"></div>
+          <!-- Gizli alanlar — doğrulama sonrası dolar -->
+          <input type="hidden" id="ep-ad">
+          <input type="hidden" id="ep-soyad">
+          <input type="hidden" id="ep-dept">
+          <input type="hidden" id="ep-poz">
+          <input type="hidden" id="ep-yonetici" value="">
+          <input type="hidden" id="ep-sirket" value="">
+          <div class="ep-nav">
+            <button class="btn btn-ghost" onclick="showLoginScreen()">
+              <i class="ti ti-arrow-left"></i> Geri
+            </button>
+            <button class="btn btn-accent" onclick="epVerifyAndNext()">
+              <i class="ti ti-shield-check"></i> Doğrula ve Devam Et
+            </button>
+          </div>
+        </div>
+
+        <!-- ADIM 2: İZİN DETAYLARI -->
+        <div class="ep-step-content" id="ep-step-2">
+          <div class="ep-step-title"><i class="ti ti-calendar"></i> İzin Detayları</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>İzin Türü <span class="req">*</span></label>
+              <select id="ep-tur" onchange="updateEpTurInfo()">
+                <option value="">-- Seçiniz --</option>
+                <option value="Yıllık İzin">Yıllık İzin</option>
+                <option value="Hastalık İzni">Hastalık İzni</option>
+                <option value="Mazeret İzni">Mazeret İzni</option>
+                <option value="Ücretsiz İzin">Ücretsiz İzin</option>
+                <option value="Evlilik İzni">Evlilik İzni</option>
+                <option value="Doğum İzni">Doğum İzni</option>
+                <option value="Yas İzni">Yas İzni</option>
+                <option value="Diğer">Diğer</option>
+              </select>
+              <div class="field-err" id="err-ep-tur"></div>
+            </div>
+            <div class="form-group">
+              <label>Aciliyet</label>
+              <select id="ep-aciliyet">
+                <option value="Normal">Normal</option>
+                <option value="Acil">Acil</option>
+                <option value="Planlanmış">Planlanmış</option>
+              </select>
+            </div>
+          </div>
+          <div class="ep-tur-info" id="ep-tur-info" style="display:none"></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Başlangıç Tarihi <span class="req">*</span></label>
+              <input type="date" id="ep-bas" onchange="calcEpGun()">
+              <div class="field-err" id="err-ep-bas"></div>
+            </div>
+            <div class="form-group">
+              <label>Bitiş Tarihi <span class="req">*</span></label>
+              <input type="date" id="ep-bit" onchange="calcEpGun()">
+              <div class="field-err" id="err-ep-bit"></div>
+            </div>
+          </div>
+          <div class="ep-gun-box" id="ep-gun-box" style="display:none">
+            <i class="ti ti-info-circle"></i>
+            Toplam izin süresi: <strong id="ep-gun-val">0</strong> iş günü
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>İzin Sebebi <span class="req">*</span></label>
+              <textarea id="ep-sebep" placeholder="İzin talebinizin sebebini açıklayınız..." style="min-height:100px"></textarea>
+              <div class="field-err" id="err-ep-sebep"></div>
+              <div class="char-count"><span id="ep-sebep-count">0</span> / 500 karakter</div>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Görev Devri / Vekillik</label>
+              <input type="text" id="ep-vekil" placeholder="İzindeyken işlerinizi yürütecek kişinin adı">
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Ek Açıklama / Not</label>
+              <textarea id="ep-not" placeholder="Varsa eklemek istediğiniz bilgiler..."></textarea>
+            </div>
+          </div>
+          <div class="ep-nav">
+            <button class="btn btn-ghost" onclick="epPrev(2)">
+              <i class="ti ti-arrow-left"></i> Geri
+            </button>
+            <button class="btn btn-accent" onclick="epNext(2)">
+              İncele <i class="ti ti-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ADIM 3: ÖZET & ONAY -->
+        <div class="ep-step-content" id="ep-step-3">
+          <div class="ep-step-title"><i class="ti ti-check"></i> Talep Özeti</div>
+          <div class="ep-summary" id="ep-summary"></div>
+          <div class="ep-confirm-check">
+            <label class="ep-checkbox">
+              <input type="checkbox" id="ep-confirm">
+              <span>Girdiğim bilgilerin doğru olduğunu onaylıyorum ve talebimin yöneticime iletilmesini istiyorum.</span>
+            </label>
+            <div class="field-err" id="err-ep-confirm"></div>
+          </div>
+          <div class="ep-nav">
+            <button class="btn btn-ghost" onclick="epPrev(3)">
+              <i class="ti ti-arrow-left"></i> Geri
+            </button>
+            <button class="btn btn-accent" onclick="submitEpRequest()">
+              <i class="ti ti-send"></i> Talebi Gönder
+            </button>
+          </div>
+        </div>
+
+        <!-- BAŞARILI -->
+        <div class="ep-step-content" id="ep-success">
+          <div class="ep-success-inner">
+            <div class="ep-success-icon"><i class="ti ti-circle-check"></i></div>
+            <h3>Talebiniz Alındı!</h3>
+            <p>İzin talebiniz başarıyla sisteme kaydedildi. Yöneticiniz en kısa sürede değerlendirip size bilgi verecektir.</p>
+            <div class="ep-ref-box">
+              Referans No: <strong id="ep-ref-no">#000000</strong>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:1.5rem;flex-wrap:wrap;justify-content:center">
+              <button class="btn btn-accent" onclick="epReset()">
+                <i class="ti ti-plus"></i> Yeni Talep
+              </button>
+              <button class="btn btn-ghost" onclick="goToStatusFromSuccess()">
+                <i class="ti ti-search"></i> Durumu Sorgula
+              </button>
+              <button class="btn btn-ghost" onclick="showLoginScreen()">
+                <i class="ti ti-login"></i> Admin Girişi
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ ANA UYGULAMA ════════════════ -->
+  <div class="screen" id="s-main" style="flex-direction:row">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sb-logo">
+        <div class="sb-logo-inner">
+          <div class="sb-logo-icon"><i class="ti ti-users" style="color:#fff;font-size:18px"></i></div>
+          <div>
+            <div class="sb-logo-text">PersonelApp</div>
+            <div class="sb-logo-sub">v2.0 — İK Sistemi</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sb-section">Ana Menü</div>
+      <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
+        <i class="ti ti-layout-dashboard"></i><span>Panel</span>
+      </div>
+      <div class="nav-item" onclick="showPage('personel')" data-page="personel">
+        <i class="ti ti-users"></i><span>Personel</span>
+      </div>
+
+      <div class="sb-section" style="margin-top:.5rem">İzin İşlemleri</div>
+      <div class="nav-item" onclick="showPage('izin-talep')" data-page="izin-talep">
+        <i class="ti ti-calendar-plus"></i><span>İzin Talebi</span>
+      </div>
+      <div class="nav-item" onclick="showPage('izinler')" data-page="izinler">
+        <i class="ti ti-calendar-check"></i><span>İzin Listesi</span>
+        <span class="nav-badge" id="badge-pending" style="display:none">0</span>
+      </div>
+
+      <div class="sb-section" style="margin-top:.5rem">Analiz</div>
+      <div class="nav-item" onclick="showPage('raporlar')" data-page="raporlar">
+        <i class="ti ti-chart-bar"></i><span>Raporlar</span>
+      </div>
+
+      <div class="sb-bottom">
+        <div class="user-card" onclick="openProfileModal()" title="Profili düzenle">
+          <div class="ua" id="sb-avatar">AY</div>
+          <div>
+            <div class="un" id="sb-name">Ahmet Yılmaz</div>
+            <div class="ur" id="sb-role">İK Yöneticisi</div>
+          </div>
+          <i class="ti ti-pencil edit-hint"></i>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">
+          <i class="ti ti-logout" style="font-size:15px"></i> Çıkış Yap
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN ALAN -->
+    <div class="main-area">
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Genel Bakış</div>
+        <div class="topbar-sub" id="topbar-sub">Hoş geldiniz</div>
+      </div>
+      <div class="content">
+
+        <!-- PANEL -->
+        <div class="inner-screen active" id="p-dashboard">
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-icon" style="background:rgba(108,143,255,.15);color:var(--accent)"><i class="ti ti-users"></i></div>
+              <div class="stat-val" id="d-total">0</div>
+              <div class="stat-label">Toplam Personel</div>
+              <div class="stat-change"><i class="ti ti-trending-up" style="font-size:11px"></i> Aktif çalışan</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--amber-bg);color:var(--amber)"><i class="ti ti-clock"></i></div>
+              <div class="stat-val" id="d-pending">0</div>
+              <div class="stat-label">Bekleyen İzin</div>
+              <div class="stat-change" style="color:var(--amber)"><i class="ti ti-alert-triangle" style="font-size:11px"></i> İnceleme bekliyor</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-check"></i></div>
+              <div class="stat-val" id="d-approved">0</div>
+              <div class="stat-label">Onaylanan İzin</div>
+              <div class="stat-change" style="color:var(--green)"><i class="ti ti-trending-up" style="font-size:11px"></i> Toplam</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--red-bg);color:var(--red)"><i class="ti ti-x"></i></div>
+              <div class="stat-val" id="d-rejected">0</div>
+              <div class="stat-label">Reddedilen</div>
+              <div class="stat-change" style="color:var(--red)"><i class="ti ti-trending-down" style="font-size:11px"></i> Toplam</div>
+            </div>
+          </div>
+          <div class="sec-title"><i class="ti ti-activity" style="color:var(--accent)"></i> Son Hareketler</div>
+          <div class="card">
+            <table>
+              <thead><tr><th>Personel</th><th>İzin Türü</th><th>Tarih</th><th>Durum</th></tr></thead>
+              <tbody id="d-table">
+                <tr class="empty-row"><td colspan="4"><i class="ti ti-inbox" style="font-size:24px;display:block;margin-bottom:6px"></i>Henüz izin talebi yok.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PERSONEL LİSTESİ -->
+        <div class="inner-screen" id="p-personel">
+          <div class="toast toast-success" id="t-personel">
+            <i class="ti ti-circle-check" style="font-size:16px"></i> Personel başarıyla eklendi!
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <i class="ti ti-users" style="color:var(--accent);font-size:18px"></i>
+              <div class="card-header-title">Çalışan Listesi</div>
+              <div class="card-header-sub" id="personel-count"></div>
+              <button class="btn btn-accent" onclick="showPage('personel-ekle')">
+                <i class="ti ti-plus"></i> Yeni Personel
+              </button>
+            </div>
+            <div class="card-toolbar">
+              <div class="search-box">
+                <i class="ti ti-search"></i>
+                <input type="text" placeholder="İsim, departman veya pozisyon ara..." id="s-personel" oninput="filterPersonel()">
+              </div>
+            </div>
+            <table>
+              <thead><tr><th>Ad Soyad</th><th>Departman</th><th>Pozisyon</th><th>Giriş Tarihi</th><th>Kalan İzin</th><th>Durum</th><th></th></tr></thead>
+              <tbody id="personel-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PERSONEL EKLE -->
+        <div class="inner-screen" id="p-personel-ekle">
+          <div class="sec-title"><i class="ti ti-user-plus" style="color:var(--accent)"></i> Yeni Çalışan Kaydı</div>
+          <div class="form-card">
+            <div class="form-row">
+              <div class="form-group"><label>Ad</label><input type="text" id="p-ad" placeholder="Mehmet"></div>
+              <div class="form-group"><label>Soyad</label><input type="text" id="p-soyad" placeholder="Kaya"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>E-posta</label><input type="email" id="p-email" placeholder="mehmet@sirket.com"></div>
+              <div class="form-group"><label>Telefon</label><input type="tel" id="p-tel" placeholder="0532 000 00 00"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Departman</label>
+                <select id="p-dept">
+                  <option>Yazılım Geliştirme</option>
+                  <option>İnsan Kaynakları</option>
+                  <option>Muhasebe</option>
+                  <option>Satış</option>
+                  <option>Pazarlama</option>
+                  <option>Operasyon</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Pozisyon</label><input type="text" id="p-poz" placeholder="Yazılım Geliştirici"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Giriş Tarihi</label><input type="date" id="p-tarih"></div>
+              <div class="form-group"><label>Yıllık İzin Hakkı (gün)</label><input type="number" id="p-izin" value="14" min="0"></div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-accent" onclick="addPersonel()"><i class="ti ti-device-floppy"></i> Kaydet</button>
+              <button class="btn btn-ghost"  onclick="showPage('personel')"><i class="ti ti-x"></i> İptal</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- İZİN TALEBİ -->
+        <div class="inner-screen" id="p-izin-talep">
+          <div class="sec-title"><i class="ti ti-calendar-plus" style="color:var(--accent)"></i> Yeni İzin Talebi</div>
+          <div class="form-card">
+            <div class="toast toast-success" id="t-izin">
+              <i class="ti ti-circle-check" style="font-size:16px"></i> İzin talebi oluşturuldu!
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>Personel Seç</label>
+                <select id="it-personel" onchange="updateKalan()"></select>
+              </div>
+            </div>
+            <div class="info-box">
+              <i class="ti ti-info-circle" style="color:var(--blue);font-size:16px"></i>
+              Kalan yıllık izin: <strong id="it-kalan">—</strong>&nbsp;gün
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>İzin Türü</label>
+                <select id="it-tur">
+                  <option>Yıllık İzin</option>
+                  <option>Hastalık İzni</option>
+                  <option>Mazeret İzni</option>
+                  <option>Ücretsiz İzin</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Başlangıç Durumu</label>
+                <select id="it-durum">
+                  <option>Beklemede</option>
+                  <option>Onaylandı</option>
+                  <option>Reddedildi</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Başlangıç Tarihi</label><input type="date" id="it-bas"></div>
+              <div class="form-group"><label>Bitiş Tarihi</label><input type="date" id="it-bit"></div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>Açıklama (isteğe bağlı)</label>
+                <textarea id="it-acik" placeholder="İzin nedeni veya ek notlar..."></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-accent" onclick="addIzin()"><i class="ti ti-send"></i> Talebi Gönder</button>
+              <button class="btn btn-ghost"  onclick="showPage('izinler')"><i class="ti ti-x"></i> İptal</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- İZİN LİSTESİ -->
+        <div class="inner-screen" id="p-izinler">
+          <div class="card">
+            <div class="card-header">
+              <i class="ti ti-calendar-check" style="color:var(--accent);font-size:18px"></i>
+              <div class="card-header-title">İzin Talepleri</div>
+              <button class="btn btn-accent" onclick="showPage('izin-talep')" style="margin-left:auto">
+                <i class="ti ti-plus"></i> Yeni Talep
+              </button>
+            </div>
+            <div class="card-toolbar">
+              <div class="search-box">
+                <i class="ti ti-search"></i>
+                <input type="text" placeholder="Personel veya tür ara..." id="s-izin" oninput="filterIzin()">
+              </div>
+              <select class="filter" id="f-izin" onchange="filterIzin()">
+                <option value="">Tüm Durumlar</option>
+                <option value="Beklemede">Beklemede</option>
+                <option value="Onaylandı">Onaylandı</option>
+                <option value="Reddedildi">Reddedildi</option>
+              </select>
+            </div>
+            <table>
+              <thead><tr><th>Personel</th><th>İzin Türü</th><th>Başlangıç</th><th>Bitiş</th><th>Süre</th><th>Ref Kodu</th><th>Durum</th><th>İşlemler</th></tr></thead>
+              <tbody id="izin-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RAPORLAR -->
+        <div class="inner-screen" id="p-raporlar">
+          <div class="report-grid">
+            <div class="report-card">
+              <div class="report-card-title"><i class="ti ti-building"></i> Departmana Göre İzin Sayısı</div>
+              <div id="dept-bars"><div style="color:var(--text3);font-size:13px">Veri yükleniyor...</div></div>
+            </div>
+            <div class="report-card">
+              <div class="report-card-title"><i class="ti ti-chart-donut"></i> İzin Türü Dağılımı</div>
+              <div class="pie-wrap">
+                <svg id="pie-svg" width="120" height="120" viewBox="0 0 100 100" style="flex-shrink:0"></svg>
+                <div class="pie-legend" id="pie-legend"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sec-title"><i class="ti ti-user-check" style="color:var(--accent)"></i> Personel İzin Özeti</div>
+          <div class="card">
+            <table>
+              <thead><tr><th>Personel</th><th>Departman</th><th>Toplam Hak</th><th>Kullanılan</th><th>Kalan</th><th>Kullanım</th></tr></thead>
+              <tbody id="rapor-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- .content -->
+    </div><!-- .main-area -->
+  </div><!-- #s-main -->
+
+</div><!-- .app -->
+
+<!-- ════════════════ PROFİL MODAL ════════════════ -->
+<div class="modal-overlay" id="profile-modal" onclick="closeProfileModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-header-title">
+          <i class="ti ti-user-cog" style="color:var(--accent);margin-right:6px;font-size:16px"></i>Profil Ayarları
+        </div>
+        <div class="modal-header-sub">Hesap bilgilerinizi düzenleyin</div>
+      </div>
+      <button class="modal-close" onclick="closeProfileModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-avatar-section">
+        <div class="modal-avatar" id="m-avatar">AY</div>
+        <div class="modal-avatar-info">
+          <div class="name"  id="m-preview-name">Ahmet Yılmaz</div>
+          <div class="role"  id="m-preview-role">İK Yöneticisi</div>
+          <div class="email-display" id="m-preview-email">admin@sirket.com</div>
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-bottom:1rem">
+        <div class="form-group">
+          <label>Ad</label>
+          <input type="text" id="m-ad" placeholder="Adınız" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label>Soyad</label>
+          <input type="text" id="m-soyad" placeholder="Soyadınız" oninput="updatePreview()">
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:1rem">
+        <div class="form-group">
+          <label>Unvan / Rol</label>
+          <input type="text" id="m-rol" placeholder="İK Yöneticisi" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label>E-posta</label>
+          <input type="email" id="m-email" placeholder="admin@sirket.com" oninput="updatePreview()">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem">
+        Şifre Değiştir <span style="font-weight:400">(isteğe bağlı)</span>
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <div class="form-group">
+          <label>Yeni Şifre</label>
+          <input type="password" id="m-pwd1" placeholder="En az 6 karakter" oninput="checkPwd()">
+          <div class="pwd-strength" id="pwd-bar"></div>
+        </div>
+        <div class="form-group">
+          <label>Şifre Tekrar</label>
+          <input type="password" id="m-pwd2" placeholder="Şifreyi tekrar girin">
+        </div>
+      </div>
+      <div style="font-size:11px;margin-top:6px" id="pwd-hint"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost"  onclick="closeProfileModal()"><i class="ti ti-x"></i> İptal</button>
+      <button class="btn btn-accent" onclick="saveProfile()"><i class="ti ti-device-floppy"></i> Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ PERSONEL DETAY DRAWER ════════════════ -->
+<div class="drawer-overlay" id="pdrawer-overlay" onclick="closePDrawer()"></div>
+<div class="drawer" id="personel-drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-title"><i class="ti ti-user-circle" style="color:var(--accent)"></i> Personel Profili</div>
+      <div class="drawer-sub" id="pdr-sub">—</div>
+    </div>
+    <button class="modal-close" onclick="closePDrawer()"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="drawer-body" id="pdr-body"></div>
+  <div class="drawer-actions" id="pdr-actions"></div>
+</div>
+
+<!-- ════════════════ İZİN DETAY DRAWER ════════════════ -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="izin-drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-title"><i class="ti ti-file-description" style="color:var(--accent)"></i> Talep Detayları</div>
+      <div class="drawer-sub" id="dr-ref-label">—</div>
+    </div>
+    <button class="modal-close" onclick="closeDrawer()"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<script src="personel.js"></script>
+</body>
+</html>
